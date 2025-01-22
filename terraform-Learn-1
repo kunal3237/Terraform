@@ -1,1 +1,132 @@
 #####Will try to understand the Basic terrraform command (init,plan,terraform) with providers/resources in this this first file with examples
+
+While woring with terraform, we need to first check the available providers. Providers are plugins which allows us to interact with respective cloud or service provider
+
+Here I am working with AWS so I need to check the documentation for AWS
+
+##############################################
+
+Check the "Authentication and Configuration" in terrafrom docs to see how to connect to AWS. Every service provider has it way, So check the docs
+
+For AWS,One way is below:
+######################################################
+provider "aws" {
+  region     = "us-west-2"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
+}
+########################################################
+As I also have aws cli installed so I won;t be mentioning anythin here. AWS cli will automatically provide the credentials
+
+###################################################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat providers.tf 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+# Configure the AWS Provider                                                                #####Mentioning providers, Not specifying auth methos as it is taken care by aws cli, else you need to specify
+provider "aws" {
+  region = "us-east-1"
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat data.tf 
+data "aws_iam_users" "users" {                                                                  #####Data is used to check already available resources, will check in other chapters
+
+}
+
+output "user_list" {                                                                        ####Output being shown
+    value = data.aws_iam_users.users.names
+}kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
+
+
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ terraform plan
+data.aws_iam_users.users: Reading...
+data.aws_iam_users.users: Read complete after 2s [id=us-east-1]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ terraform apply 
+data.aws_iam_users.users: Reading...
+data.aws_iam_users.users: Read complete after 2s [id=us-east-1]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:                                                                                    ###Result of the terrafor apply command
+
+user_list = toset([
+  "kunal",
+  "oscar",
+  "sharma",
+])
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
+
+
+####################################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ ls -ltr
+total 12
+-rw-rw-r-- 1 kunal kunal  100 Jan 22 19:56 data.tf
+-rw-rw-r-- 1 kunal kunal  189 Jan 22 19:56 providers.tf
+-rw-rw-r-- 1 kunal kunal 1071 Jan 22 19:57 terraform.tfstate                                    #####State file created locally
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat terraform.tfstate                        ###Content of the state file
+{
+  "version": 4,
+  "terraform_version": "1.8.3",
+  "serial": 1,
+  "lineage": "06d38422-d298-eaba-b566-f0b32f3bf1ad",
+  "outputs": {
+    "user_list": {
+      "value": [
+        "kunal",
+        "oscar",
+        "sharma"
+      ],
+      "type": [
+        "set",
+        "string"
+      ]
+    }
+  },
+  "resources": [
+    {
+      "mode": "data",
+      "type": "aws_iam_users",
+      "name": "users",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arns": [
+              "arn:aws:iam::324769750091:user/home/oscar/oscar",
+              "arn:aws:iam::324769750091:user/kunal",
+              "arn:aws:iam::324769750091:user/sharma"
+            ],
+            "id": "us-east-1",
+            "name_regex": null,
+            "names": [
+              "kunal",
+              "oscar",
+              "sharma"
+            ],
+            "path_prefix": null
+          },
+          "sensitive_attributes": []
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
+
