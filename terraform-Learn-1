@@ -130,3 +130,49 @@ kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat terraform.tfstate       
 }
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
 
+#######################################################################
+data.aws_iam_users.users: Read complete after 1s [id=us-east-1]
+
+Changes to Outputs:
+  ~ user_list = [
+      - "kunal",
+      - "oscar",
+      - "sharma",
+    ] -> "kunal"
+
+You can apply this plan to save these new output values to the Terraform state, without changing any real infrastructure.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+user_list = "kunal"
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
+
+###############################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat variable.tf 
+variable "aws_var" {
+    type = string
+    description = "To test how variable works"
+    default = "kunal"
+}kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
+
+###########################################################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat data.tf 
+data "aws_iam_users" "users" {
+
+}
+
+data "aws_iam_user" "example" {
+  user_name = var.aws_var
+}
+output "user_list" {
+    value = data.aws_iam_user.example.user_name
+}kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
