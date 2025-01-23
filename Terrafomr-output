@@ -1,0 +1,134 @@
+#################### Creating seperate output file
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ terraform show
+# aws_iam_user.lb:
+resource "aws_iam_user" "lb" {
+    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    force_destroy        = false
+    id                   = "speaker"
+    name                 = "speaker"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {
+        "env" = "speaker-test"
+    }
+    tags_all             = {
+        "env" = "speaker-test"
+    }
+    unique_id            = "AIDAUXHOJDRF4WFGS4LUQ"
+}
+
+
+Outputs:
+
+check_local = "speaker"                                                    ####Output being posted
+check_nest_local = "speaker-test1"
+user_create_out = "arn:aws:iam::$$$$$$$$0091:user/system/speaker"
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat output.tf 
+output "check_local" {
+  value=local.my_local                                                          ####Output defined
+  
+}
+
+locals {
+  nest_local="${local.my_local}-test1"
+}
+
+output "check_nest_local" {
+  value = local.nest_local
+  
+}
+
+output "user_create_out" {
+  value=aws_iam_user.lb.arn
+    
+}kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
+
+
+##################Hiding sensitive info####################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ terraform output
+check_local = "speaker"
+check_nest_local = "speaker-test1"
+user_create_out = <sensitive>                                          ####Not showing the output
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat output.tf 
+output "check_local" {
+  value=local.my_local
+  
+}
+
+locals {
+  nest_local="${local.my_local}-test1"
+}
+
+output "check_nest_local" {
+  value = local.nest_local
+  
+}
+
+output "user_create_out" {
+  value=aws_iam_user.lb.arn
+  sensitive = true                                                                            ###Defining senstivity
+    
+}kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
+
+
+
+###############################################################################
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ terraform show
+# aws_iam_user.lb:
+resource "aws_iam_user" "lb" {
+    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    force_destroy        = false
+    id                   = "speaker"
+    name                 = "speaker"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {
+        "env" = "speaker-test"
+    }
+    tags_all             = {
+        "env" = "speaker-test"
+    }
+    unique_id            = "AIDAUXHOJDRFSLOEWWZBM"
+}
+
+
+Outputs:
+
+check_local = "speaker"
+check_nest_local = "speaker-test1"
+user_create_out = {
+    "speaker" = "arn:aws:iam::324769750091:user/system/speaker"                                        ####Output with a function
+}
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat output.tf 
+output "check_local" {
+  value=local.my_local
+  
+}
+
+locals {
+  nest_local="${local.my_local}-test1"
+}
+
+output "check_nest_local" {
+  value = local.nest_local
+  
+}
+
+output "user_create_out" {
+  value= tomap({(aws_iam_user.lb.name)=(aws_iam_user.lb.arn)})                                        #####Output with function
+  sensitive = false
+    
+}kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
+
+
+
+#######################################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ terraform output user_create_out
+tomap({
+  "speaker" = "arn:aws:iam::324769750091:user/system/speaker"
+})
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
+
+#################################################
