@@ -1,0 +1,152 @@
+#####Exercise to check locals working
+Terraform Locals are only accessible within that functions or within the scope of terraform file.
+Terraform locals can use the power of expression, so instead of writing the same expression the multiple times through the terraform configuration, you can declare a terraform locals and use the same terraform locals at other places.
+E.g  
+
+locals {
+  my_local = "${var.ec2_instance_name}"  ###Expression
+}
+
+ locals {
+  my_local = "t2.micro"          ###Static
+}
+
+
+####################################
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat main.tf 
+resource "aws_iam_user" "lb" {
+  name = local.my_local
+  path = "/system/"
+  
+  
+}
+
+locals {
+  my_local=var.aws_user_name                                            #####Expression defined in the locals.Vraiable value being stored in the locals.Terraform.tfvars contains "speaker as the value
+}
+
+output "check_local" {
+  value=local.my_local
+  
+}
+
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
+# aws_iam_user.lb:
+resource "aws_iam_user" "lb" {
+    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    force_destroy        = false
+    id                   = "speaker"
+    name                 = "speaker"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {}
+    tags_all             = {}
+    unique_id            = "AIDAUXHOJDRF4F6OJDF3M"
+}
+
+
+Outputs:
+
+check_local = "speaker"                                                              ####Locals value evaluated
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+
+############################################################
+
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
+# aws_iam_user.lb:
+resource "aws_iam_user" "lb" {
+    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    force_destroy        = false
+    id                   = "speaker"
+    name                 = "speaker"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {
+        "env" = "speaker-test"
+    }
+    tags_all             = {
+        "env" = "speaker-test"
+    }
+    unique_id            = "AIDAUXHOJDRF2BZNJKPLK"
+}
+
+
+Outputs:
+
+check_local = "speaker"
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat main.tf 
+resource "aws_iam_user" "lb" {
+  name = "${local.my_local}"                                                  ####Using local, we can it directly as well. ${} used to check how it behaves
+  path = "/system/"
+  tags = {
+    env= "${local.my_local}-test"
+    
+  }
+  
+}
+
+locals {
+  my_local=var.aws_user_name                                                      ##33LOcal Defined with Expression
+}
+
+output "check_local" {
+  value=local.my_local
+  
+}
+
+###################################Nesting locals###########################
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
+# aws_iam_user.lb:
+resource "aws_iam_user" "lb" {
+    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    force_destroy        = false
+    id                   = "speaker"
+    name                 = "speaker"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {
+        "env" = "speaker-test"
+    }
+    tags_all             = {
+        "env" = "speaker-test"
+    }
+    unique_id            = "AIDAUXHOJDRF7ECLIAA5V"
+}
+
+
+Outputs:
+
+check_local = "speaker"
+check_nest_local = "speaker-test1"                                                                  ###Nested Local output
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat main.tf 
+resource "aws_iam_user" "lb" {
+  name = "${local.my_local}"
+  path = "/system/"
+  tags = {
+    env= "${local.my_local}-test"
+    
+  }
+  
+}
+
+locals {
+  my_local=var.aws_user_name
+}
+
+output "check_local" {
+  value=local.my_local
+  
+}
+
+locals {
+  nest_local="${local.my_local}-test1"                                                ####Nesting local
+}
+
+output "check_nest_local" {
+  value = local.nest_local
+  
+}
