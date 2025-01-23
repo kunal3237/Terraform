@@ -182,3 +182,6 @@ output "user_list" {
 During reaource creation, Please check argument section. Arguments which have required mentioned should be passed during resource creeation.
 
 Also while calling the output check the Attribute section. And use that in output or in other file if needed.
+
+###############################################
+
