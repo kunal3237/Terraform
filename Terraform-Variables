@@ -1,0 +1,418 @@
+#####Test the working of variables in the terraform
+
+We will test input,output and locals 
+
+Variables are defined in the variables block in your Terraform configuration file, 
+
+E.g variable "env_var" {}
+
+We can define default values and the type of the variable in variable section of the terraform. Other options to define the variables are -var, -var-file commamd line arguments
+
+Variables can be simple or collection variables
+1) simple --- number,string , boolean
+2) Collection varaible ---- list , map/dict/hash, set
+###########################################################################
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat variable.tf 
+variable "aws_user_name" {
+    type = string
+    description = "To test how variable works"
+    default = "sharma1"
+}root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+
+########################################
+Using simple variable
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat variable.tf 
+variable "aws_user_name" {
+    type = string
+    description = "To test how variable works"
+    default = "sharma1"
+}root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat main.tf 
+resource "aws_iam_user" "lb" {
+  name = var.aws_user_name                                                  #####Variable being called
+  path = "/system/"
+
+  tags = {
+    env = "prod"
+  }
+}
+
+# resource "aws_iam_access_key" "lb" {
+#   user = aws_iam_user.lb.name
+# }
+
+# data "aws_iam_policy_document" "lb_ro" {
+#   statement {
+#     effect    = "Allow"
+#     actions   = ["ec2:Describe*"]
+#     resources = ["*"]
+#   }
+# }
+
+# resource "aws_iam_user_policy" "lb_ro" {
+#   name   = "test"
+#   user   = aws_iam_user.lb.name
+#   policy = data.aws_iam_policy_document.lb_ro.json
+# }root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+##################################With Number ########################
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat main.tf 
+resource "aws_iam_user" "lb" {
+  name = var.aws_user_name
+  path = "/system/"
+
+  tags = {
+    env = var.aws_user_name
+  }
+}
+
+output "check_variable" {
+  value=aws_iam_user.lb.tags_all
+  
+}root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat variable.tf 
+variable "aws_user_name" {
+    type = number                                                                    #####Number Type
+    description = "To test how variable works"
+    default = 3
+}
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform output
+check_variable = tomap({
+  "env" = "3"                                                                          #####Value placed in final outcome
+})
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+
+###############################################
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
+# aws_iam_user.lb:
+resource "aws_iam_user" "lb" {
+    arn                  = "arn:aws:iam::324769750091:user/system/sharma2"
+    force_destroy        = true                                                                ####Bool Varaible
+    id                   = "sharma2"        
+    name                 = "sharma2"                                                           ####String Variable 
+    path                 = "/system/"
+    permissions_boundary = null
+    tags_all             = {}
+    unique_id            = "AIDAUXHOJDRF4F6OJDF3M"
+}
+
+
+Outputs:
+
+check_variable = "sharma2"
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+##################################Collection Varaible List/map/set #########################
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat variable.tf 
+variable "aws_user_name_list" {
+    type = list(string)                                                  ####List of strings
+    description = "To test how variable works"
+    default = ["user-1","user-2","user-3",1]                            ######List
+}
+
+variable "aws_user_name" {
+    type = string                                                    ###String
+    description = "To test how variable works"
+    default = "sharma2"
+}root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat main.tf 
+resource "aws_iam_user" "lb" {
+  name = var.aws_user_name
+  path = "/system/"
+  
+  
+}
+
+
+output "check_var_list" {                                                                  ####  Using list with varaibles
+  value=var.aws_user_name_list
+  
+}
+
+output "check_random_variable" {                                                          ##Random output
+  value="hi, We are just tesiting"
+  
+}root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+#################################################
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
+# aws_iam_user.lb:
+resource "aws_iam_user" "lb" {
+    arn                  = "arn:aws:iam::324769750091:user/system/sharma2"
+    force_destroy        = false
+    id                   = "sharma2"
+    name                 = "sharma2"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {}
+    tags_all             = {}
+    unique_id            = "AIDAUXHOJDRF4F6OJDF3M"
+}
+
+
+Outputs:
+
+check_random_variable = "hi, We are just tesiting"                                          ####Output 
+check_var_list = [                                                                          ##Output
+    "user-1",
+    "user-2",
+    "user-3",
+    "1",
+]
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+##############################################################################
+
+Variables in various places -var -var-file, terraform.tfvars or myfile.tfvars follow some precendece order , Please check the docs for this
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
+# aws_iam_user.lb:
+resource "aws_iam_user" "lb" {
+    arn                  = "arn:aws:iam::324769750091:user/system/sharma2"
+    force_destroy        = false
+    id                   = "sharma2"
+    name                 = "sharma2"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {}
+    tags_all             = {}
+    unique_id            = "AIDAUXHOJDRF4F6OJDF3M"
+}
+
+
+Outputs:
+
+check_random_variable = "hi, We are just tesiting"
+check_var_list = [
+    "user-1",
+    "user-2",
+    "user-3",
+    "1",
+]
+map_output_name = "env"                                                                ####Variable Map key
+map_output_value = "prod"                                                              ###Variable Map Value
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat variable.tf 
+variable "aws_user_name_list" {
+    type = list(string)
+    description = "To test how variable works"
+    default = ["user-1","user-2","user-3",1]
+}
+
+variable "aws_user_name" {
+    type = string
+    description = "To test how variable works"
+    default = "sharma2"
+}
+
+variable "var_map" {                                                                        ######defining Map in variables
+    default = {enviorment_name="env",
+     environment_value= "prod"}
+  
+}root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat main.tf 
+resource "aws_iam_user" "lb" {
+  name = var.aws_user_name
+  path = "/system/"
+  
+  
+}
+
+
+output "check_var_list" {
+  value=var.aws_user_name_list
+  
+}
+
+output "check_random_variable" {
+  value="hi, We are just tesiting"
+  
+}
+
+output "map_output_name" {
+  value = var.var_map.enviorment_name
+  
+}
+
+output "map_output_value" {                                                                    ###Calling Map
+  value= var.var_map.environment_value
+  
+}root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+##########################Passing command line variables ##############################
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform apply --auto-approve -var aws_user_name='mouse'
+aws_iam_user.lb: Refreshing state... [id=sharma2]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+
+Terraform will perform the following actions:
+
+  # aws_iam_user.lb will be updated in-place
+  ~ resource "aws_iam_user" "lb" {
+        id                   = "sharma2"
+      ~ name                 = "sharma2" -> "mouse"
+        tags                 = {}
+        # (6 unchanged attributes hidden)
+    }
+
+Plan: 0 to add, 1 to change, 0 to destroy.
+aws_iam_user.lb: Modifying... [id=sharma2]
+aws_iam_user.lb: Modifications complete after 2s [id=mouse]
+
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+
+Outputs:
+
+check_random_variable = "hi, We are just tesiting"
+check_var_list = tolist([
+  "user-1",
+  "user-2",
+  "user-3",
+  "1",
+])
+map_output_name = "env"
+map_output_value = "prod"
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
+# aws_iam_user.lb:
+resource "aws_iam_user" "lb" {
+    arn                  = "arn:aws:iam::324769750091:user/system/mouse"
+    force_destroy        = false
+    id                   = "mouse"
+    name                 = "mouse"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {}
+    tags_all             = {}
+    unique_id            = "AIDAUXHOJDRF4F6OJDF3M"
+}
+
+
+Outputs:
+
+check_random_variable = "hi, We are just tesiting"
+check_var_list = [
+    "user-1",
+    "user-2",
+    "user-3",
+    "1",
+]
+map_output_name = "env"
+map_output_value = "prod"
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+
+###############################With terraform.tfvars file, Overriding the default values mentioned in the variables.tf file ####################
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform apply --auto-approve 
+aws_iam_user.lb: Refreshing state... [id=mouse]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+
+Terraform will perform the following actions:
+
+  # aws_iam_user.lb will be updated in-place
+  ~ resource "aws_iam_user" "lb" {
+        id                   = "mouse"
+      ~ name                 = "mouse" -> "speaker"                                            ######Name is taken from terraform.tfvars even default value is already in the variables.tf file
+        tags                 = {}
+        # (6 unchanged attributes hidden)
+    }
+
+Plan: 0 to add, 1 to change, 0 to destroy.
+aws_iam_user.lb: Modifying... [id=mouse]
+aws_iam_user.lb: Modifications complete after 2s [id=speaker]
+
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+
+Outputs:
+
+check_random_variable = "hi, We are just tesiting"
+check_var_list = tolist([
+  "user-1",
+  "user-2",
+  "user-3",
+  "1",
+])
+map_output_name = "env"
+map_output_value = "prod"
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+################################Using -var-file as command line argument##################
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform apply -auto-approve -var-file=myvar.tfvars
+aws_iam_user.lb: Refreshing state... [id=speaker]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+
+Terraform will perform the following actions:
+
+  # aws_iam_user.lb will be updated in-place
+  ~ resource "aws_iam_user" "lb" {
+        id                   = "speaker"
+      ~ name                 = "speaker" -> "smartBox"
+        tags                 = {}
+        # (6 unchanged attributes hidden)
+    }
+
+Plan: 0 to add, 1 to change, 0 to destroy.
+aws_iam_user.lb: Modifying... [id=speaker]
+aws_iam_user.lb: Modifications complete after 2s [id=smartBox]
+
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+
+Outputs:
+
+check_random_variable = "hi, We are just tesiting"
+check_var_list = tolist([
+  "user-1",
+  "user-2",
+  "user-3",
+  "1",
+])
+map_output_name = "env"
+map_output_value = "prod"
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat myvar.tfvars 
+aws_user_name= "smartBox"
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+#########################################Using 2 -var-file command line arguments ##############
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform apply -auto-approve -var-file=myvar.tfvars -var-file=myvar1.tfvars
+aws_iam_user.lb: Refreshing state... [id=smartBox]
+
+Changes to Outputs:
+  ~ map_output_name       = "env" -> "kunal"
+  ~ map_output_value      = "prod" -> "sharma"
+
+You can apply this plan to save these new output values to the Terraform state, without changing any real infrastructure.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+check_random_variable = "hi, We are just tesiting"
+check_var_list = tolist([
+  "user-1",
+  "user-2",
+  "user-3",
+  "1",
+])
+map_output_name = "kunal"
+map_output_value = "sharma"
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat myvar1.tfvars 
+var_map={ environment_name="kunal",
+environment_value="sharma"
+}
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# cat myvar1.tfvars 
+var_map={ environment_name="kunal",
+environment_value="sharma"
+}
+root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# 
+
