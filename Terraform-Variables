@@ -89,7 +89,7 @@ root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1#
 root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
 # aws_iam_user.lb:
 resource "aws_iam_user" "lb" {
-    arn                  = "arn:aws:iam::324769750091:user/system/sharma2"
+    arn                  = "arn:aws:iam::***************:user/system/sharma2"
     force_destroy        = true                                                                ####Bool Varaible
     id                   = "sharma2"        
     name                 = "sharma2"                                                           ####String Variable 
@@ -142,7 +142,7 @@ output "check_random_variable" {                                                
 root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
 # aws_iam_user.lb:
 resource "aws_iam_user" "lb" {
-    arn                  = "arn:aws:iam::324769750091:user/system/sharma2"
+    arn                  = "arn:aws:iam::***************:user/system/sharma2"
     force_destroy        = false
     id                   = "sharma2"
     name                 = "sharma2"
@@ -172,7 +172,7 @@ Variables in various places -var -var-file, terraform.tfvars or myfile.tfvars fo
 root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
 # aws_iam_user.lb:
 resource "aws_iam_user" "lb" {
-    arn                  = "arn:aws:iam::324769750091:user/system/sharma2"
+    arn                  = "arn:aws:iam::***************:user/system/sharma2"
     force_destroy        = false
     id                   = "sharma2"
     name                 = "sharma2"
@@ -279,7 +279,7 @@ map_output_value = "prod"
 root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
 # aws_iam_user.lb:
 resource "aws_iam_user" "lb" {
-    arn                  = "arn:aws:iam::324769750091:user/system/mouse"
+    arn                  = "arn:aws:iam::***************:user/system/mouse"
     force_destroy        = false
     id                   = "mouse"
     name                 = "mouse"
