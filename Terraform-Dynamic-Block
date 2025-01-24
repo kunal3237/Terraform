@@ -1,0 +1,69 @@
+##########################################################
+dynamic block is way to implement for loop. Here are few facts about dynamic block which you should keep in mind -
+
+    Collections - You need to have collections .e.g. - list, map, set
+    Iterator - To create a dynamic block you need to define an iterator.
+    Content - Content is something onto which you wanna iterate.
+
+Syntax:
+dynamic "name" {
+for_each= list|map|set
+iterator= iterator_name
+content {
+key=iterator_name.value
+}
+}
+
+Dynamic blocks are used for generating nested blocks in resources based on variables or conditions. Please check if resource support nested block. For example security group support nested block,
+So we can use the dynamic block in security block
+
+
+##########################################################################
+Normally Any attribute mentioned as attribute-as-blocks mode can be used in dynamic block
+
+#################################Security Group Docs###############################
+Ingress
+
+This argument is processed in attribute-as-blocks mode.
+#######################################################################
+
+
+resource "aws_iam_user" "lb" {
+  name = "loadbalancer"
+  path = "/system/"
+
+  tags = {                                                        ####Is not nested block, It is map, Please check the data type of the 
+    tag-key = "tag-value"
+  }
+}
+
+#######################################################################
+
+resource "aws_security_group" "example" {
+  # ... other configuration ...
+
+dynamic "egress" {                                                            #####Defining Dymanic Block
+    for_each=[80,8080]                                                        #Iteration
+  iterator = portlist                                                          ###Iteration Name
+content {                                                                  
+    from_port       = portlist.value                                           ##Iteration value             
+    to_port         = portlist.value
+    protocol        = "-1"
+  }
+}
+}
+
+output "sg_detail" {
+    value=aws_security_group.example.arn
+   
+}
+
+output "sg_details_id" {
+    value=aws_security_group.example.id
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+sg_detail = "arn:aws:ec2:ap-south-1:************:security-group/sg-0fb42e336ca321344"
+sg_details_id = "sg-0fb42e336ca321344"
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
