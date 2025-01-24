@@ -55,7 +55,7 @@ resource "aws_iam_user" "user_list_count" {
 # aws_iam_user.user_list_count[2] will be destroyed
   # (because index [2] is out of range for count)
   - resource "aws_iam_user" "user_list_count" {
-      - arn                  = "arn:aws:iam::324769750091:user/system/user-3" -> null
+      - arn                  = "arn:aws:iam::*****************:user/system/user-3" -> null
       - force_destroy        = false -> null
       - id                   = "user-3" -> null
       - name                 = "user-3" -> null
