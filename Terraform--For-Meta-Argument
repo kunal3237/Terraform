@@ -80,7 +80,7 @@ output "user_created_id1" {
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
 user_created_id = {
   "0" = {                                                                                                  ##############Output is as MAP, prefixed with Index/iteration of the output
-    "arn" = "arn:aws:iam::324769750091:user/system/user-1"
+    "arn" = "arn:aws:iam::*****************:user/system/user-1"
     "force_destroy" = false
     "id" = "user-1"
     "name" = "user-1"
@@ -95,7 +95,7 @@ user_created_id = {
     "unique_id" = "AIDAUXHOJDRFUXVJ4CM23"
   }
   "1" = {                                                                                           ##############Output is as MAP, prefixed with Index of the output
-    "arn" = "arn:aws:iam::324769750091:user/system/user-2"
+    "arn" = "arn:aws:iam::*****************:user/system/user-2"
     "force_destroy" = false
     "id" = "user-2"
     "name" = "user-2"
@@ -110,7 +110,7 @@ user_created_id = {
     "unique_id" = "AIDAUXHOJDRF6KBROVF7W"
   }
   "2" = {                                                                                     ##############Output is as MAP, prefixed with Index of the output
-    "arn" = "arn:aws:iam::324769750091:user/system/user-3"
+    "arn" = "arn:aws:iam::*****************:user/system/user-3"
     "force_destroy" = false
     "id" = "user-3"
     "name" = "user-3"
@@ -144,7 +144,7 @@ output "user_created_id" {
 Outputs:
 
 user_created_id = {
-  "0" = "arn:aws:iam::324769750091:user/system/user-1"
-  "1" = "arn:aws:iam::324769750091:user/system/user-2"
-  "2" = "arn:aws:iam::324769750091:user/system/user-3"
+  "0" = "arn:aws:iam::*****************:user/system/user-1"
+  "1" = "arn:aws:iam::*****************:user/system/user-2"
+  "2" = "arn:aws:iam::*****************:user/system/user-3"
 }
