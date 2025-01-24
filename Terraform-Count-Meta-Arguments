@@ -23,7 +23,7 @@ As we have three collection types in Terraform. We would be checking which loop 
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform show
 # aws_iam_user.user_list_count[0]:
 resource "aws_iam_user" "user_list_count" {
-    arn                  = "arn:aws:iam::324769750091:user/system/Tim"
+    arn                  = "arn:aws:iam::**********************:user/system/Tim"
     force_destroy        = false
     id                   = "Tim"
     name                 = "Tim"
@@ -64,7 +64,7 @@ resource "aws_iam_user" "user_list_count" {
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform show
 # aws_iam_user.user_list_count[0]:
 resource "aws_iam_user" "user_list_count" {
-    arn                  = "arn:aws:iam::324769750091:user/system/Tim-0"
+    arn                  = "arn:aws:iam::**********************:user/system/Tim-0"
     force_destroy        = false
     id                   = "Tim-0"                                                                          ####index value start from 0,
     name                 = "Tim-0"
@@ -81,7 +81,7 @@ resource "aws_iam_user" "user_list_count" {
 
 # aws_iam_user.user_list_count[1]:
 resource "aws_iam_user" "user_list_count" {
-    arn                  = "arn:aws:iam::324769750091:user/system/Tim-1"
+    arn                  = "arn:aws:iam::**********************:user/system/Tim-1"
     force_destroy        = false
     id                   = "Tim-1"                                                                ####Index value 1 here
     name                 = "Tim-1"
