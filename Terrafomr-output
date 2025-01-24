@@ -3,7 +3,7 @@
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ terraform show
 # aws_iam_user.lb:
 resource "aws_iam_user" "lb" {
-    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    arn                  = "arn:aws:iam::*****************:user/system/speaker"
     force_destroy        = false
     id                   = "speaker"
     name                 = "speaker"
@@ -78,7 +78,7 @@ output "user_create_out" {
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ terraform show
 # aws_iam_user.lb:
 resource "aws_iam_user" "lb" {
-    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    arn                  = "arn:aws:iam::*****************:user/system/speaker"
     force_destroy        = false
     id                   = "speaker"
     name                 = "speaker"
@@ -99,7 +99,7 @@ Outputs:
 check_local = "speaker"
 check_nest_local = "speaker-test1"
 user_create_out = {
-    "speaker" = "arn:aws:iam::324769750091:user/system/speaker"                                        ####Output with a function
+    "speaker" = "arn:aws:iam::*****************:user/system/speaker"                                        ####Output with a function
 }
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat output.tf 
 output "check_local" {
@@ -127,7 +127,7 @@ output "user_create_out" {
 #######################################################
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ terraform output user_create_out
 tomap({
-  "speaker" = "arn:aws:iam::324769750091:user/system/speaker"
+  "speaker" = "arn:aws:iam::*****************:user/system/speaker"
 })
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ 
 
