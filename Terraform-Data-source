@@ -1,0 +1,60 @@
+##################Data Sources are used to get the information about already exiting resources
+
+Using data source to find the ami_ids based on below criteria 
+
+data "aws_ami_ids" "ubuntu" {
+  owners = ["099720109477"]
+
+  filter {
+    name   = "owner-alias"
+    values = ["amazon"]
+  }
+}
+
+output "ami_list" {
+    value = slice(data.aws_ami_ids.ubuntu.ids,1,10)         ###Output is list, So using slice function of the list
+  
+}
+
+###################only 10 amis shown below
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter3$ terraform  output 
+ami_list = tolist([
+  "ami-01905a261ca5d8f54",
+  "ami-0aceb08f979d772ef",
+  "ami-02b505114a6bafdbd",
+  "ami-096ba00e4403f8c79",
+  "ami-0fb9db2f8f29b4411",
+  "ami-0adf769d12b40fe37",
+  "ami-039b0ed1593d6384a",
+  "ami-000ed5810ea2ca0a0",
+  "ami-040aacc1eb21973f5",
+  "ami-0be14a4fc6ac897de",
+])
+
+#########################################
+data "aws_iam_users" "users" {}
+
+output "user_list" {
+  value = data.aws_iam_users.users.names
+}
+
+Outputs:
+
+user_list = toset([
+  "kunal",
+  "oscar",
+  "sharma",
+  "speaker",
+])
+
+######################################
+
+data "aws_iam_users" "users" {}
+
+output "user_list" {
+  value = contains(data.aws_iam_users.users.names,"kunal")                              ####As the output is set, so using one of the set fuction
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter3$ terraform output 
+user_list = true
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter3$ 
