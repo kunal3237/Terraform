@@ -34,7 +34,7 @@ output "check_local" {
 root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
 # aws_iam_user.lb:
 resource "aws_iam_user" "lb" {
-    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    arn                  = "arn:aws:iam::***************:user/system/speaker"
     force_destroy        = false
     id                   = "speaker"
     name                 = "speaker"
@@ -58,7 +58,7 @@ root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1#
 root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
 # aws_iam_user.lb:
 resource "aws_iam_user" "lb" {
-    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    arn                  = "arn:aws:iam::***************:user/system/speaker"
     force_destroy        = false
     id                   = "speaker"
     name                 = "speaker"
@@ -102,7 +102,7 @@ output "check_local" {
 root@kunal-Lenovo-U410:/home/kunal/Terraform-Study/chapter1# terraform show
 # aws_iam_user.lb:
 resource "aws_iam_user" "lb" {
-    arn                  = "arn:aws:iam::324769750091:user/system/speaker"
+    arn                  = "arn:aws:iam::***************:user/system/speaker"
     force_destroy        = false
     id                   = "speaker"
     name                 = "speaker"
