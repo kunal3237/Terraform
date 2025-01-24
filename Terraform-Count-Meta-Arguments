@@ -1,0 +1,264 @@
+Meta-Arguments 
+############################################################
+In declarative langauge there is not such loops available. however These languages provide some in built funtion to be used as loop.
+Count, For_Each, And for are avaiable in the terraform.
+Each have theri data type to worked on. So always check on what data types those fits.
+##############################################################################
+
+To knew how these loops work, Please have a understanding of the data types available in the terraform. These are loop so, These should be used in collection/iterations
+
+string: a sequence of Unicode characters representing some text, like "hello".
+number: a numeric value. The number type can represent both whole numbers like 15 and fractional values like 6.283185.
+bool: a boolean value, either true or false. bool values can be used in conditional logic.
+list (or tuple): a sequence of values, like ["us-west-1a", "us-west-1c"]. Identify elements in a list with consecutive whole numbers, starting with zero.
+set: a collection of unique values that do not have any secondary identifiers or ordering.
+map (or object): a group of values identified by named labels, like {name = "Mabel", age = 52}.
+
+################################################################################################
+As we have three collection types in Terraform. We would be checking which loop works for which collection.Apart from you need to check if these loops are available for resources or modules and data blocks
+#####################################################################
+
+###########Count can be used in  resources as well as for module################
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform show
+# aws_iam_user.user_list_count[0]:
+resource "aws_iam_user" "user_list_count" {
+    arn                  = "arn:aws:iam::324769750091:user/system/Tim"
+    force_destroy        = false
+    id                   = "Tim"
+    name                 = "Tim"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {
+        "tag-key" = "tag-value"
+    }
+    tags_all             = {
+        "tag-key" = "tag-value"
+    }
+    unique_id            = "AIDAUXHOJDRFRT25UB6DW"
+}
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
+resource "aws_iam_user" "user_list_count" {
+  count= 2                                                        ###We defined ount here 2 , But once it create first user, it will fail as it is trying to use the same name, And name should be unique in user resource
+  name = "Tim"
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+##############################################Using count.index to get over this issue ###################
+
+resource "aws_iam_user" "user_list_count" {
+  count= 2  
+  name = "Tim-${count.index}"                                ####This count.index will add uniquness in the name
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform show
+# aws_iam_user.user_list_count[0]:
+resource "aws_iam_user" "user_list_count" {
+    arn                  = "arn:aws:iam::324769750091:user/system/Tim-0"
+    force_destroy        = false
+    id                   = "Tim-0"                                                                          ####index value start from 0,
+    name                 = "Tim-0"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {
+        "tag-key" = "tag-value"
+    }
+    tags_all             = {
+        "tag-key" = "tag-value"
+    }
+    unique_id            = "AIDAUXHOJDRF3O7LW5XQF"
+}
+
+# aws_iam_user.user_list_count[1]:
+resource "aws_iam_user" "user_list_count" {
+    arn                  = "arn:aws:iam::324769750091:user/system/Tim-1"
+    force_destroy        = false
+    id                   = "Tim-1"                                                                ####Index value 1 here
+    name                 = "Tim-1"
+    path                 = "/system/"
+    permissions_boundary = null
+    tags                 = {
+        "tag-key" = "tag-value"
+    }
+    tags_all             = {
+        "tag-key" = "tag-value"
+    }
+    unique_id            = "AIDAUXHOJDRFUAIWT3ZHK"
+}
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
+
+##########################Using cpount with collections #####################
+
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= list
+    default=["user-1","user-2","user-3"]        #####List deined in the variable
+  
+}
+
+resource "aws_iam_user" "user_list_count" {
+  count=length(var.work_with_list)                                                  ####Count needs to defined here , If want to iterater in the list, it needs to be set eual to the elements of the collection. Here length fucntion is used
+  name = var.work_with_list[count.index]
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+####################################################################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = [
+  "user-1",                                                                        ###All user created mentioned in the list, count.index helped to iterate over list
+  "user-2",
+  "user-3",
+]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@Iteration over set with count@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+We can not use the count meta argument directly over the set, first you need to convert the set to the list.
+
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= set(string)
+    default=["user-1","user-2","user-3"]        #####List deined in the variable
+  
+}
+
+resource "aws_iam_user" "user_list_count" {
+  count=length(var.work_with_list)  
+  name = var.work_with_list[count.index]
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+Tried using direct set with count.index. As set do not follow the order. It is throwing below error:
+
+######################################
+Elements of a set are identified only by their value and don't have any separate index or key to select with, so it's only possible to perform operations across all elements of the
+│ set.
+#############################################################################
+
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= set(string)
+    default=["user-1","user-2","user-3"]        #####List deined in the variable
+  
+}
+
+output "user_created_id" {
+    value = var.work_with_list[*]                                        ####Printing the set, Output is list, Beacuse of the splat operator
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = tolist([
+  "user-1",
+  "user-2",
+  "user-3",
+])
+kunal@kunal-Lenovo-U410:~/Terraform-Study/c
+
+#################As we can't directly use coun.index with set. We nned to convert it to first list. Multiple ways to convert the set into list. like for expression [for i in collection: i ] or defining local or new variable
+
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= set(string)
+    default=["user-1","user-2","user-3"]        #####List deined in the variable
+  
+}
+
+locals {
+  my_list_from_set=tolist(var.work_with_list)                                        ###Converting set to list
+}
+
+resource "aws_iam_user" "user_list_count" {
+  count=length(local.my_list_from_set)                                                           ######Using list here after conversion
+  name = local.my_list_from_set[count.index]
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+output "user_created_id" {
+    value = var.work_with_list[*]
+  
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = tolist([
+  "user-1",                                                                              ###user created
+  "user-2",
+  "user-3",
+])
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
+################################################With For Expression ########################################
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= set(string)
+    default=["user-1","user-2","user-3"]        #####List deined in the variable
+  
+}
+
+resource "aws_iam_user" "user_list_count" {
+  count=length([for i in var.work_with_list: i])                                                        ######using For expression to convert set into list. For expression is like list comprehension python
+  name = [for i in var.work_with_list: i][count.index]
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = tolist([
+  "user-1",
+  "user-2",
+  "user-3",
+])
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
+
+###################################Count itertion over map#################
+As there in no concept of index  in the map. We can get the values of the map calling the keys. So we should find a approach to find the keys firs to iterate over keys of the map.
+Using keys function of the map to find out the keys of the map. Check the respective doc to find out the working of the function.
+
+variable "work_with_map" {
+    description = "This is to test the count with list"
+    type= map(string)
+    default={
+    "user-1" = "Tim" 
+    "user-2"="Tim2"
+    "user-3"="tim2"}        #####Map deined in the variable
+  
+}
+
+
+output "user_created_id" {
+    value = [for i in keys(var.work_with_map): var.work_with_map[i]]                            ######Using Keys function and for expression to make a list of keys and then find the value of the key
+  
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = [
+  "Tim",
+  "Tim2",                                                                                          ####Value evaluated
+  "tim2",
+]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
