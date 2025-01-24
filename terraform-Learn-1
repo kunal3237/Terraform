@@ -108,9 +108,9 @@ kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter1$ cat terraform.tfstate       
           "schema_version": 0,
           "attributes": {
             "arns": [
-              "arn:aws:iam::324769750091:user/home/oscar/oscar",
-              "arn:aws:iam::324769750091:user/kunal",
-              "arn:aws:iam::324769750091:user/sharma"
+              "arn:aws:iam::********************:user/home/oscar/oscar",
+              "arn:aws:iam::********************:user/kunal",
+              "arn:aws:iam::********************:user/sharma"
             ],
             "id": "us-east-1",
             "name_regex": null,
