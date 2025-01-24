@@ -1,0 +1,249 @@
+#######For_each is met-argument to iterate over collection. Count has limitation, So to overcome those we have for_each meta-argument
+
+Issue wth count is that if we remove any of the elment of the collection it's index also changes and it try to recreate the resource.
+################################################
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= list(string)
+    default=["user-1","user-2","user-3"]                                    #####Created list with 3 elements
+  
+}
+
+# locals {
+#   my_list_from_set=tolist(var.work_with_list)
+# }
+
+resource "aws_iam_user" "user_list_count" {
+  count=length(var.work_with_list)
+  name = var.work_with_list[count.index]                                                ###Login to create 3 users from the list
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = [
+  "user-1",                                                                                ##Three user created
+  "user-2",
+  "user-3",
+]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
+##################Now making chages in the list, removing user-2 from the list ###################
+If you remove an element or change the count, Terraform can delete and recreate resources, leading to potential downtime or state churn.
+
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= list(string)
+    default=["user-1","user-3"]
+  
+}
+
+resource "aws_iam_user" "user_list_count" {
+  count=length(var.work_with_list)
+  name = var.work_with_list[count.index]
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+###############################################################################
+# aws_iam_user.user_list_count[2] will be destroyed
+  # (because index [2] is out of range for count)
+  - resource "aws_iam_user" "user_list_count" {
+      - arn                  = "arn:aws:iam::324769750091:user/system/user-3" -> null
+      - force_destroy        = false -> null
+      - id                   = "user-3" -> null
+      - name                 = "user-3" -> null
+      - path                 = "/system/" -> null
+      - tags                 = {
+          - "tag-key" = "tag-value"
+        } -> null
+      - tags_all             = {
+          - "tag-key" = "tag-value"
+        } -> null
+      - unique_id            = "AIDAUXHOJDRFVGZFEFRSN" -> null
+        # (1 unchanged attribute hidden)
+    }
+
+  # aws_iam_user.user_list_count[1] will be updated in-place
+  ~ resource "aws_iam_user" "user_list_count" {
+        id                   = "user-2"
+      ~ name                 = "user-2" -> "user-3"                                                    ##############
+        tags                 = {
+            "tag-key" = "tag-value"
+        }
+        # (6 unchanged attributes hidden)
+    }
+
+aws_iam_user.user_list_count[2]: Destroying... [id=user-3]                                        ########Destroying
+aws_iam_user.user_list_count[1]: Modifying... [id=user-2]
+aws_iam_user.user_list_count[2]: Destruction complete after 1s
+
+############################################
+For_Each can only be used on set(string) or map(string).                                                    ####Important
+It does not work with  list, as list contain duplicate values
+Remove duplication and convert list into set to use the list
+####################################################
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= list(string)
+    default=["user-1","user-3"]
+  
+}
+
+# locals {
+#   my_list_from_set=tolist(var.work_with_list)
+# }
+
+resource "aws_iam_user" "user_list_count" {
+  for_each=toset(var.work_with_list)                                                      ####Converting to set
+  name = each.key                                                                              ###Key being called for ech iteration
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+output "user_created_id" {
+  
+    value = [for i in aws_iam_user.user_list_count: i.id]                                      #####For_each can't be used in output. So using for expression to show the outputs
+                                              
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = [
+  "user-1",
+  "user-3",
+]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
+###############################################Adding one more element in the lsit ot see the behaviour ######################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform plan
+aws_iam_user.user_list_count["user-3"]: Refreshing state... [id=user-3]
+aws_iam_user.user_list_count["user-1"]: Refreshing state... [id=user-1]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_iam_user.user_list_count["user-2"] will be created
+  + resource "aws_iam_user" "user_list_count" {
+      + arn           = (known after apply)
+      + force_destroy = false
+      + id            = (known after apply)
+      + name          = "user-2"
+      + path          = "/system/"
+      + tags          = {
+          + "tag-key" = "tag-value"
+        }
+      + tags_all      = {
+          + "tag-key" = "tag-value"
+        }
+      + unique_id     = (known after apply)
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.                                                      ####Showing one to add, not destroying anything
+
+Changes to Outputs:
+  ~ user_created_id = [
+        "user-1",
+      + (known after apply),
+        "user-3",
+    ]
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+##################################################################
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= list(string)
+    default=["user-1","user-2","user-3"]
+  
+}
+
+# locals {
+#   my_list_from_set=tolist(var.work_with_list)
+# }
+
+resource "aws_iam_user" "user_list_count" {
+  for_each=toset(var.work_with_list)
+  name = each.value                                                      ####using each.value this time
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+output "user_created_id" {
+  
+    value = [for i in aws_iam_user.user_list_count: i.id]
+  
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = [
+  "user-1",                                                                      ####Added new user 
+  "user-2",
+  "user-3",
+]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
+
+####################################Using map with for_each ##########################################
+variable "work_with_list" {
+    description = "This is to test the count with list"
+    type= map(string)
+    default={"user-1"= "tim-1"                                                      #####Map
+    "user-2"="tim2"
+    "user-3"="tim3"}
+  
+}
+
+resource "aws_iam_user" "user_list_count" {
+  for_each=(var.work_with_list)
+  name = each.value                                                                      ###Using Map value
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+output "user_created_id" {
+  
+    value = [for i in aws_iam_user.user_list_count: i.id]
+  
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = [
+  "tim-1",
+  "tim2",                                                                        ###Map value used for resource creation
+  "tim3",
+]
+#############################Using Map keys for resource creation###############
+resource "aws_iam_user" "user_list_count" {
+  for_each=(var.work_with_list)
+  name = each.key
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ terraform output 
+user_created_id = [
+  "user-1",
+  "user-2",                                                                ######Key Value used
+  "user-3",
+]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter2$ 
+
