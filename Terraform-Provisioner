@@ -1,0 +1,100 @@
+#################################################
+Provisioners are used to performing certain custom actions and tasks either on the local machine or on the remote machine.
+These tasks can be runnng script locally, on remote server or copyint the files
+
+
+Types of provisioner:
+1) Generic : local-exex, remote-exec, file provisioner
+2) Vendor Specific: chef,habitat
+
+
+###########################File provisioner#################################
+Used to copy files/directories. For secure file transfers machine should support ssh or winrm connections.
+To use the provisioner, add a provisioner block inside the resource block ##############################################Imp
+
+resource "local_file" "foo" {
+  content  = "foo!"
+  filename = "${path.module}/foo.bar                                                #####Check referenece to named values
+}
+
+output "local_file_out" {
+  value=local_file.foo.file_permission
+  #sensitive = true
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter4$ terraform output 
+local_file_out = "0777"
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter4$ 
+
+#########################################Working with File Provisioner #########################
+
+resource "local_file" "foo" {                                              #####using local provider and local resource to create a new file
+  content  = "foo!"
+  filename = "${path.module}/foo.bar"                                        ####Named value
+ 
+    provisioner "file" {                                                    ####File provisioner
+    source      = "foo.bar"
+    destination = "/home/kunal/Terraform-Study/foo.bar"
+
+    connection {                                                    ##### Need to define the ssh connection to copy the file
+    type     = "ssh"
+    user     = "kunal"
+    #private_key = file("~/.ssh/id_rsa")
+    host     = "localhost"
+  }
+  }
+    
+  }
+
+output "check_file_copy" {
+  value = local_file.foo.filename
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter4$ terraform output 
+check_file_copy = "./foo.bar"
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter4$ 
+
+
+#################################Loca-exec Provisioner #######################
+resource "local_file" "foo" {
+  content  = "foo!"
+  filename = "${path.module}/foo.bar"
+  provisioner "local-exec" {
+    command = "python3 api-json-data.py" 
+    
+  }
+}
+
+ + create
+
+Terraform will perform the following actions:
+
+  # local_file.foo will be created
+  + resource "local_file" "foo" {
+      + content              = "foo!"
+      + content_base64sha256 = (known after apply)
+      + content_base64sha512 = (known after apply)
+      + content_md5          = (known after apply)
+      + content_sha1         = (known after apply)
+      + content_sha256       = (known after apply)
+      + content_sha512       = (known after apply)
+      + directory_permission = "0777"
+      + file_permission      = "0777"
+      + filename             = "./foo.bar"
+      + id                   = (known after apply)
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+local_file.foo: Creating...
+local_file.foo: Provisioning with 'local-exec'...
+local_file.foo (local-exec): Executing: ["/bin/sh" "-c" "python3 api-json-data.py"]                              ####Python script executed as well
+local_file.foo (local-exec): Date : 2025-01-25
+local_file.foo (local-exec): TimeZone: America/New_York
+local_file.foo (local-exec): First Light: 5:48:39 AM
+local_file.foo (local-exec): Last Light: 6:54:43 PM
+local_file.foo (local-exec): Day Length: 10:01:12
+
+local_file.foo: Creation complete after 1s [id=4bf3e335199107182c6f7638efaad377acc7f452]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter5$ 
