@@ -148,3 +148,28 @@ user_created_id = {
   "1" = "arn:aws:iam::*****************:user/system/user-2"
   "2" = "arn:aws:iam::*****************:user/system/user-3"
 }
+
+
+###################################Using for_each ########################
+ resource "aws_iam_user" "lb" {
+  for_each=toset(var.for_loop_check)
+  name = each.value
+  path = "/system/"
+
+  tags = {
+    tag-key = "tag-value"
+  }
+} 
+
+output "output_with_for" {
+  value = [for i in aws_iam_user.lb: i.name]
+  
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter3$ terraform output 
+output_with_for = [
+  "user-1",
+  "user-2",
+  "user-3",
+]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter3$
