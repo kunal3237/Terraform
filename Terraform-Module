@@ -115,3 +115,24 @@ user_group = tolist([
     "user_name" = "user-2"
   },
 ])
+
+
+###########################Using Publicly available Modules ###################
+provider "aws" {
+  region     = "ap-south-1"
+}
+
+module "iam_user" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-user"                            #####Module available to create user
+
+  name          = "User-1"                      ####Required 
+}
+
+
+output "aws_module_iam" {
+  value = module.iam_user.iam_user_name
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ terraform output 
+aws_module_iam = "User-1"
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ 
