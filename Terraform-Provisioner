@@ -55,7 +55,7 @@ check_file_copy = "./foo.bar"
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter4$ 
 
 
-#################################Loca-exec Provisioner #######################
+#################################Loca-exec Provisioner ####################### As this is local provioner, no ssh required
 resource "local_file" "foo" {
   content  = "foo!"
   filename = "${path.module}/foo.bar"
