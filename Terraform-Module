@@ -1,0 +1,117 @@
+####################################################################################
+
+Module to split the code in multiple files. It is bascially for code reusability 
+
+
+########################################
+Create 2 Modules and calling the output of one into another to see its working
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ tree
+.  
+├── module1                                          ####Module 1
+│   └── main.tf
+└── module2                                          #Module 2
+    └── main.tf  
+
+2 directories, 2 files
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ 
+
+##########################Module 1 main.tf life, which will be used in module 2 
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ cat module1/main.tf 
+provider "aws" {
+  region     = "ap-south-1"
+}
+
+variable "user_list" {
+    default = ["user-1","user-2","user-3"]
+  
+}
+
+resource "aws_iam_user" "lb" {
+  for_each= toset(var.user_list)
+  name = each.value
+  path = "/system/"
+
+  tags = {
+    tag-key = each.value
+  }
+}
+
+output "user_created" {
+  #value = aws_iam_user.lb.name
+ value=[for i in aws_iam_user.lb: i.name]
+}
+
+##########################Module 2 main.tf life, which will be calling module 1
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ cat module2/main.tf 
+provider "aws" {
+  region     = "ap-south-1"
+}
+
+module "module1_import" {                                                      ###Importing module 1
+  source = "../module1"
+}
+resource "aws_iam_user_group_membership" "example1" {
+  for_each=toset(module.module1_import.user_created)                ####Using module 1 data, Output should be defined in modeule 1 to be used in module 2
+  user = each.value
+
+  groups = [
+    "mygroup"
+  ]
+  depends_on = [ module.module1_import ]                          ####setting up dependency so that module 1 is completed before running thie resource creation
+}
+
+data "aws_iam_group" "example_user_list" {
+  group_name = "mygroup"
+  depends_on = [ aws_iam_user_group_membership.example1 ]          ####setting up dependency so that aws_iam_user_group_membership.example1 id executed first
+}
+
+output "user_group" {
+    value = data.aws_iam_group.example_user_list.users
+  
+}
+output "module_out" {
+    value = module.module1_import.user_created
+  
+}
+}kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ 
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform output 
+module_out = [
+  "user-1",
+  "user-2",
+  "user-3",
+]
+user_group = tolist([
+  {
+    "arn" = "arn:aws:iam::****************:user/system/user-1"
+    "path" = "/system/"
+    "user_id" = "AIDAUXHOJDRF2M5XUGE5C"
+    "user_name" = "user-1"
+  },
+  {
+    "arn" = "arn:aws:iam::****************:user/system/user-3"
+    "path" = "/system/"
+    "user_id" = "AIDAUXHOJDRF2WP73WERA"
+    "user_name" = "user-3"
+  },
+  {
+    "arn" = "arn:aws:iam::****************:user/kunal"
+    "path" = "/"
+    "user_id" = "AIDAUXHOJDRF63FQSKKM6"
+    "user_name" = "kunal"
+  },
+  {
+    "arn" = "arn:aws:iam::****************:user/sharma"
+    "path" = "/"
+    "user_id" = "AIDAUXHOJDRFRUW4SN6W6"
+    "user_name" = "sharma"
+  },
+  {
+    "arn" = "arn:aws:iam::****************:user/system/user-2"
+    "path" = "/system/"
+    "user_id" = "AIDAUXHOJDRFU4L6YNCFW"
+    "user_name" = "user-2"
+  },
+])
