@@ -37,7 +37,7 @@ resource "aws_iam_user" "lb" {
   }
 }
 
-output "user_created" {
+output "user_created" {                                                    ######Output the values which you wan to use in other modules, Elase you won't be avle to use this module values
   #value = aws_iam_user.lb.name
  value=[for i in aws_iam_user.lb: i.name]
 }
