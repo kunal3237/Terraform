@@ -55,7 +55,7 @@ check_file_copy = "./foo.bar"
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter4$ 
 
 
-#################################Loca-exec Provisioner ####################### As this is local provioner, no ssh required
+#################################Local-exec Provisioner ####################### As this is local provioner, no ssh required
 resource "local_file" "foo" {
   content  = "foo!"
   filename = "${path.module}/foo.bar"
@@ -97,4 +97,45 @@ local_file.foo (local-exec): Day Length: 10:01:12
 local_file.foo: Creation complete after 1s [id=4bf3e335199107182c6f7638efaad377acc7f452]
 
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter5$ 
+
+#############################remote Provisioner############################
+resource "local_file" "foo" {
+  content  = "foo!"
+  filename = "${path.module}/foo.bar"
+
+  connection {
+    type     = "ssh"
+    user     = "kunal"
+    #host     = self.public_ip                                                ####Self is used as it is defined in the resource block. So self here means the resource
+    host = "localhost"
+  }
+  provisioner "remote-exec" {                                                            ####Using remote-exec
+    inline = [ "python3 /home/kunal/Terraform-Study/chapter5/api-json-data.py" ]        ###Mention the absolute path
+    
+  }
+}
+
+###############################################Output###################
+local_file.foo: Creating...
+local_file.foo: Provisioning with 'remote-exec'...
+local_file.foo (remote-exec): Connecting to remote host via SSH...
+local_file.foo (remote-exec):   Host: localhost
+local_file.foo (remote-exec):   User: kunal
+local_file.foo (remote-exec):   Password: false
+local_file.foo (remote-exec):   Private key: false
+local_file.foo (remote-exec):   Certificate: false
+local_file.foo (remote-exec):   SSH Agent: true
+local_file.foo (remote-exec):   Checking Host Key: false
+local_file.foo (remote-exec):   Target Platform: unix
+local_file.foo (remote-exec): Connected!
+local_file.foo (remote-exec): Date : 2025-01-25
+local_file.foo (remote-exec): TimeZone: America/New_York
+local_file.foo (remote-exec): First Light: 5:48:39 AM
+local_file.foo (remote-exec): Last Light: 6:54:43 PM
+local_file.foo (remote-exec): Day Length: 10:01:12
+
+local_file.foo: Creation complete after 1s [id=4bf3e335199107182c6f7638efaad377acc7f452]
+
+Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter5$ 
