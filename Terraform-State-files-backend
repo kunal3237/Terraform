@@ -419,6 +419,22 @@ See below Id 49 is updated that is data overwriten      ########################
 For example Please mention the key with S3 backend else it will overwrite the default data
 
 
+##################################################################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ terraform state list
+module.iam_user.aws_iam_access_key.this_no_pgp[0]
+module.iam_user.aws_iam_user.this[0]
+module.iam_user.aws_iam_user_login_profile.this[0]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ 
 
+################################IMportant
+
+Even createing the workspace in local directory created different directories for workspaces
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ ls -tlr terraform.tfstate.d/                                                                #####Directory taking care of workspaces locally
+total 12
+drwxr-xr-x 2 kunal kunal 4096 Jan 27 16:36 chapter6-module2-dev
+drwxr-xr-x 2 kunal kunal 4096 Jan 27 16:38 chapter6
+drwxr-xr-x 2 kunal kunal 4096 Jan 27 16:40 chapter6-dev
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ 
 
 
