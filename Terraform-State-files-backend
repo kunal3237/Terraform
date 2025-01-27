@@ -1,0 +1,424 @@
+###################State file Terraform
+When we use terraform to provision any resource , the info about a resources is kept in terraform state file. Terraform track changes in the config file and this state file
+
+
+######################HELM Chart Installation with terraform
+provider "helm" {
+    kubernetes  {
+     config_path = "~/.kube/config"
+  }
+}
+
+resource "helm_release" "example" {
+  name       = "mychart"
+  repository = "stacksimplify"
+  chart      = "mychart2"
+  version    = "0.3.0"
+
+  atomic = true
+
+   set  {
+    
+      name  = "service.nodePort"
+      value = "31240"
+    }
+    
+
+}
+
+After running the terrraform apply command a resource is created.
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ helm list
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+mychart default         1               2025-01-27 15:22:35.813931657 +0530 IST deployed        mychart2-0.3.0  3.0.0      
+nginx   default         6               2024-12-15 18:11:49.53997725 +0530 IST  deployed        nginx-15.4.1    1.25.3     
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ ls -ltr
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ ls -ltr
+total 20
+-rw-r--r-- 1 root  root  2005 Jan 27 13:43 api-json-data.py
+-rw-rw-r-- 1 kunal kunal  505 Jan 27 13:55 main-docker
+-rw-rw-r-- 1 kunal kunal  583 Jan 27 14:53 main-kubernetes
+-rw-rw-r-- 1 kunal kunal  323 Jan 27 15:20 main.tf
+-rw-rw-r-- 1 kunal kunal 3141 Jan 27 15:22 terraform.tfstate                                                  ####State file is created 
+
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ cat terraform.tfstate                                                 #As you can see now the state file contains the info about the resource we created earlier
+{
+  "version": 4,
+  "terraform_version": "1.8.3",
+  "serial": 1,
+  "lineage": "dceeb92e-8ce0-6a36-33e7-3e02ac758d2e",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "helm_release",
+      "name": "example",
+      "provider": "provider[\"registry.terraform.io/hashicorp/helm\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "atomic": true,
+            "chart": "mychart2",
+            "cleanup_on_fail": false,
+            "create_namespace": false,
+            "dependency_update": false,
+            "description": null,
+            "devel": null,
+            "disable_crd_hooks": false,
+            "disable_openapi_validation": false,
+            "disable_webhooks": false,
+            "force_update": false,
+            "id": "mychart",
+            "keyring": null,
+            "lint": false,
+            "manifest": null,
+            "max_history": 0,
+            "metadata": [
+              {
+                "app_version": "3.0.0",                                                            ##########
+                "chart": "mychart2",                                                                  #########################
+                "first_deployed": 1737971555,
+                "last_deployed": 1737971555,
+                "name": "mychart",
+                "namespace": "default",
+                "notes": "1. Get the application URL by running these commands:\n  export NODE_PORT=$(kubectl get --namespace default -o jsonpath=\"{.spec.ports[0].nodePort}\" services mychart-mychart2)\n  export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath=\"{.items[0].status.addresses[0].address}\")\n  echo http://$NODE_IP:$NODE_PORT\n",
+                "revision": 1,
+                "values": "{\"service\":{\"nodePort\":31240}}",
+                "version": "0.3.0"
+              }
+            ],
+            "name": "mychart",
+            "namespace": "default",
+            "pass_credentials": false,
+            "postrender": [],
+            "recreate_pods": false,
+            "render_subchart_notes": true,
+            "replace": false,
+            "repository": "stacksimplify",
+            "repository_ca_file": null,
+            "repository_cert_file": null,
+            "repository_key_file": null,
+            "repository_password": null,
+            "repository_username": null,
+            "reset_values": false,
+            "reuse_values": false,
+            "set": [
+              {
+                "name": "service.nodePort",
+                "type": "",
+                "value": "31240"
+              }
+            ],
+            "set_list": [],
+            "set_sensitive": [],
+            "skip_crds": false,
+            "status": "deployed",
+            "timeout": 300,
+            "upgrade_install": null,
+            "values": null,
+            "verify": false,
+            "version": "0.3.0",
+            "wait": true,
+            "wait_for_jobs": false
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "repository_password"
+              }
+            ]
+          ],
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ=="
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+#######################################This File is very important as it contain all the info about the resource that you created. If by chance this file is deleted terraform is unaware of the resource created and will create problems
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ terraform state list
+helm_release.example
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ mv terraform.tfstate terraform.tfstate1                           ####Renamed file, Now the command is throwing error
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ terraform state list
+No state file was found!
+
+State management commands require a state file. Run this command
+in a directory where Terraform has been run or use the -state flag
+to point the command to a specific state location.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+Running the command terraform try to create the resource again as terraform does not have info about previous created resources
+
+Plan: 1 to add, 0 to change, 0 to destroy.                                                                                  #########################
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: n
+
+Apply cancelled.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+
+#################As we are working locally, This file is stored in local directory from where we are running the terrraform commands. however when working in a team, it is not good approach as this file is storedlocally
+in your machine and other user won't be able to know about this resource. So this local state file is good for testing/development.
+
+However while working in a team, Remote Backend is preferred. So that Other users can have acces as well
+
+#####################Also, Please check what option are availabe for file locking as many provided remote backends does not support file locking. Which might overwrite/corrupt the state file.
+
+E.g. S3 provides locking with dynamodb, Please check the docs for this implementation.
+
+#########################################PostGres Remote Backend
+Postgres is one of the supported backend whihc can be used to store the terrraform state files . It has in built file locking.
+
+##########################IMPORTANT, While usng postgres as backend, Preferally use the workspaces as a directory, otherwise data stored in postgres table defaults to defaul workspace
+and it will overwrite the data while switching the directories.
+
+states is the table name used in pg backed having 3 columns,id,text and workspace
+
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform workspace new chapter6-module2
+Created and switched to workspace "chapter6-module2"!
+
+You're now on a new, empty workspace. Workspaces isolate their state,
+so if you run "terraform plan" Terraform will not see any existing 
+state for this configuration.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform show 
+The state file is empty. No resources are represented.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform workspace show
+chapter6-module2
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ 
+
+
+########################Crating state file in PG backend, Module being used as well #########################
+provider "aws" {
+  region     = "ap-south-1"
+}
+
+module "module1_import" {
+  source = "../module1"
+}
+resource "aws_iam_user_group_membership" "example1" {
+  for_each=toset(module.module1_import.user_created)
+  user = each.value
+
+  groups = [
+    "mygroup"
+  ]
+  depends_on = [ module.module1_import ]
+}
+
+terraform {
+  backend "pg" {
+     
+
+  }
+}
+data "aws_iam_group" "example_user_list" {
+  group_name = "mygroup"
+  depends_on = [ aws_iam_user_group_membership.example1 ]
+}
+
+output "user_group" {
+    value = data.aws_iam_group.example_user_list.users
+  
+}
+output "module_out" {
+    value = module.module1_import.user_created
+  
+}
+
+###############################################################After apply
+
+Outputs:
+
+module_out = [
+  "user-2",
+  "user-3",
+  "user-4",
+]
+user_group = tolist([
+  {
+    "arn" = "arn:aws:iam::*******************:user/system/user-4"
+    "path" = "/system/"
+    "user_id" = "AIDAUXHOJDRF2DOCF7ETH"
+    "user_name" = "user-4"
+  },
+  {
+    "arn" = "arn:aws:iam::*******************:user/system/user-2"
+    "path" = "/system/"
+    "user_id" = "AIDAUXHOJDRF2Z2APJKDX"
+    "user_name" = "user-2"
+  },
+  {
+    "arn" = "arn:aws:iam::*******************:user/kunal"
+    "path" = "/"
+    "user_id" = "AIDAUXHOJDRF63FQSKKM6"
+    "user_name" = "kunal"
+  },
+  {
+    "arn" = "arn:aws:iam::*******************:user/sharma"
+    "path" = "/"
+    "user_id" = "AIDAUXHOJDRFRUW4SN6W6"
+    "user_name" = "sharma"
+  },
+  {
+    "arn" = "arn:aws:iam::*******************:user/system/user-3"
+    "path" = "/system/"
+    "user_id" = "AIDAUXHOJDRFUF2XOJOIK"
+    "user_name" = "user-3"
+  },
+])
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ 
+
+
+#########################NO local state file created in bith directories#########################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ ls -ltr
+total 4
+-rw-rw-r-- 1 kunal kunal 629 Jan 27 15:48 main.tf
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ ls -ltr ../module1
+total 4
+-rw-rw-r-- 1 kunal kunal 370 Jan 25 16:51 main.tf
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ 
+
+
+#######################Connectin made with environment variable. Did not pass the auth parameters in the main.tf ###################
+Below is the command used to set everything, So that terrraform  can connect to PG
+
+terraform init --backend-config="conn_str=postgres://$PGUSER:$PGPASSWORD@$PGHOST/$PGDATABASE" -reconfigure
+
+##################################################################
+Default Schema and table created.
+test_erp=> \dt terraform_remote_state.states 
+                List of relations
+         Schema         |  Name  | Type  | Owner 
+------------------------+--------+-------+-------
+ terraform_remote_state | states | table | mary
+(1 row)
+
+test_erp=> 
+
+test_erp=> \d terraform_remote_state.states
+                       Table "terraform_remote_state.states"
+ Column |  Type  | Collation | Nullable |                  Default                  
+--------+--------+-----------+----------+-------------------------------------------
+ id     | bigint |           | not null | nextval('global_states_id_seq'::regclass)
+ name   | text   |           |          | 
+ data   | text   |           |          | 
+Indexes:
+    "states_pkey" PRIMARY KEY, btree (id)
+    "states_by_name" UNIQUE, btree (name)
+    "states_name_key" UNIQUE CONSTRAINT, btree (name)
+
+test_erp=> 
+
+test_erp=> \l
+                                                List of databases
+   Name    |  Owner   | Encoding | Locale Provider | Collate | Ctype | Locale | ICU Rules |   Access privileges   
+-----------+----------+----------+-----------------+---------+-------+--------+-----------+-----------------------
+ postgres  | postgres | UTF8     | libc            | en_IN   | en_IN |        |           | 
+ sonar     | sonar    | UTF8     | libc            | en_IN   | en_IN |        |           | 
+ sonarqube | sonar    | UTF8     | libc            | en_IN   | en_IN |        |           | =Tc/sonar            +
+           |          |          |                 |         |       |        |           | sonar=CTc/sonar
+ template0 | postgres | UTF8     | libc            | en_IN   | en_IN |        |           | =c/postgres          +
+           |          |          |                 |         |       |        |           | postgres=CTc/postgres
+ template1 | postgres | UTF8     | libc            | en_IN   | en_IN |        |           | =c/postgres          +
+           |          |          |                 |         |       |        |           | postgres=CTc/postgres
+ test_erp  | postgres | UTF8     | libc            | en_IN   | en_IN |        |           | =Tc/postgres         +
+           |          |          |                 |         |       |        |           | postgres=CTc/postgres+
+           |          |          |                 |         |       |        |           | mary=CTc/postgres
+(6 rows)
+
+test_erp=> 
+
+
+#######################################################################As mentoioned while working with PG, please use workspace else data will be overwritted
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform workspace new chapter6-module2
+Created and switched to workspace "chapter6-module2"!
+
+You're now on a new, empty workspace. Workspaces isolate their state,
+so if you run "terraform plan" Terraform will not see any existing state
+for this configuration.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform workspace show                                          ###3New Workspace created and switched
+chapter6-module2
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ 
+
+Snippet from database storing this state info:
+
+id |       name       |                                             data                                             
+----+------------------+----------------------------------------------------------------------------------------------
+ 49 | default          | {                                                                                           +                                              ###If you don't specfy workspace this will be used all the time
+    |                  |   "version": 4,                                                                             +
+    |                  |   "terraform_version": "1.8.3",                                                             +
+    |                  |   "serial": 2,                                                                              +
+    |                  |   "lineage": "43d2736d-0dc1-047f-564b-978bec140e82",                                        +
+    |                  |   "outputs": {},                                                                            +
+    |                  |   "resources": [],                                                                          +
+    |                  |   "check_results": null                                                                     +
+    |                  | }                                                                                           +
+    |                  | 
+ 51 | chapter6-module2 | {                                                                                           +                                    ####With chapter6-module2 workspace
+    |                  |   "version": 4,                                                                             +
+    |                  |   "terraform_version": "1.8.3",                                                             +
+
+
+Create one more workspace in same directory and ran the terraform apply command
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+YOu can see that I have 3 rows now
+test_erp=> select id,name from terraform_remote_state.states;
+ id |         name         
+----+----------------------
+ 49 | default
+ 51 | chapter6-module2
+ 53 | chapter6-module2-dev
+(3 rows)
+
+test_erp=> 
+#################################Now switching the directory and not setting the workspace then it will over the data of default workspace,please check the 49 id
+
+Changing the directory
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ pwd
+/home/kunal/Terraform-Study/chapter6                                    ########################
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ terraform workspace show 
+default
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6$ 
+
+See below Id 49 is updated that is data overwriten      ###################################
+
+49 | default              | {                                                                                  +
+    |                      |   "version": 4,                                                                    +
+    |                      |   "terraform_version": "1.8.3",                                                    +
+    |                      |   "serial": 4,                                                                     +
+    |                      |   "lineage": "43d2736d-0dc1-047f-564b-978bec140e82",                               +
+    |                      |   "outputs": {                                                                     +
+    |                      |     "aws_module_iam": {                                                            +
+    |                      |       "value": "User-4",                                                           +
+    |                      |       "type": "string"                                                             +
+    |                      |     }                                                                              +
+    |                      |   },                                                                               +
+    |                      |   "resources": [                                                                   +
+    |                      |     {                                                                              +
+
+
+###############################SO please take care of working with PG as it used the default workspace on;y. Even in directory swtitching use unique name for workspaces
+
+######################Other backends have their mechanism to avoid this. So check those while using those.
+
+For example Please mention the key with S3 backend else it will overwrite the default data
+
+
+
+
+
