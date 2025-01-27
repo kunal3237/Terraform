@@ -1,0 +1,160 @@
+######Using Terraform to install the charts in Helm
+Terrafrom do have integratiion with Helm. So Here I am showig how to use terraform with helm
+
+##############################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ cat main.tf                                                         #####File With Helm provider
+provider "helm" {
+    kubernetes  {
+     config_path = "~/.kube/config"                                                                                ##Kubernetes cluster config
+  }
+}
+
+resource "helm_release" "example" {                                                                              #####resources to be created
+  name       = "mychart"
+  repository = "stacksimplify"
+  chart      = "mychart2"
+  version    = "0.2.0"
+
+  atomic = true
+}kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ helm list
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+nginx   default         6               2024-12-15 18:11:49.53997725 +0530 IST  deployed        nginx-15.4.1    1.25.3     
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+
+################################################################
+Plan: 1 to add, 0 to change, 0 to destroy.
+helm_release.example: Creating...
+helm_release.example: Creation complete after 5s [id=mychart]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ helm list
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+mychart default         1               2025-01-27 12:35:09.505665205 +0530 IST deployed        mychart2-0.2.0  2.0.0                            ####Chart install with Terraform
+nginx   default         6               2024-12-15 18:11:49.53997725 +0530 IST  deployed        nginx-15.4.1    1.25.3     
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+########################NOw uppgrading the chart################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ helm  search repo mychart2 --versions
+NAME                    CHART VERSION   APP VERSION     DESCRIPTION                
+stacksimplify/mychart2  0.4.0           4.0.0           A Helm chart for Kubernetes
+stacksimplify/mychart2  0.3.0           3.0.0           A Helm chart for Kubernetes
+stacksimplify/mychart2  0.2.0           2.0.0           A Helm chart for Kubernetes
+stacksimplify/mychart2  0.1.0           1.0.0           A Helm chart for Kubernetes
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+'
+##################Changing the chart version #####################
+resource "helm_release" "example" {
+  name       = "mychart"
+  repository = "stacksimplify"
+  chart      = "mychart2"
+  version    = "0.3.0"
+
+  atomic = true
+}
+
+###############################################################################
+Terraform will perform the following actions:
+
+  # helm_release.example will be updated in-place
+  ~ resource "helm_release" "example" {
+        id                         = "mychart"
+        name                       = "mychart"
+      ~ version                    = "0.2.0" -> "0.3.0"
+        # (26 unchanged attributes hidden)
+    }
+
+Plan: 0 to add, 1 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+helm_release.example: Modifying... [id=mychart]
+helm_release.example: Modifications complete after 6s [id=mychart]
+
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ helm list
+NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+mychart default         2               2025-01-27 12:37:26.516211538 +0530 IST deployed        mychart2-0.3.0  3.0.0                ##Helm Chart upgraded to version 0.3.0
+nginx   default         6               2024-12-15 18:11:49.53997725 +0530 IST  deployed        nginx-15.4.1    1.25.3     
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+###########################################################################
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ curl http://172.18.0.2:31232                                                  ####App Bein access from node IP as this is nodeport service
+<!DOCTYPE html>
+<html>
+   <body style="background-color:rgb(250, 210, 242);">
+      <h1>Welcome to Stack Simplify</h1>
+      <p>Kubernetes Fundamentals Demo</p>
+      <p>Application Version: V3</p>
+   </body>
+</html>kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ helm show values stacksimplify/mychart2
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+image:
+  repository: ghcr.io/stacksimplify/kubenginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 31232                                                                                                        ####Value used by the port
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ helm get values mychart                                              ####user supplied values null
+USER-SUPPLIED VALUES:
+null
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+##################################Now passing the values ##############################
+
+provider "helm" {
+    kubernetes  {
+     config_path = "~/.kube/config"
+  }
+}
+
+resource "helm_release" "example" {
+  name       = "mychart"
+  repository = "stacksimplify"
+  chart      = "mychart2"
+  version    = "0.3.0"
+
+  atomic = true
+
+   set  {
+    
+      name  = "service.nodePort"
+      value = "31240"                                                                                              ####Changing the NodePort
+    }
+    
+
+}
+
+###########################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ helm get values mychart
+USER-SUPPLIED VALUES:
+service:
+  nodePort: 31240                                                                                                        ###NodePOrt is updated 
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ curl http://172.18.0.2:31240
+<!DOCTYPE html>
+<html>
+   <body style="background-color:rgb(250, 210, 242);">
+      <h1>Welcome to Stack Simplify</h1>
+      <p>Kubernetes Fundamentals Demo</p>
+      <p>Application Version: V3</p>
+   </body>
+</html>kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
