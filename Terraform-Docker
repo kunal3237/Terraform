@@ -1,0 +1,59 @@
+###############Use case Terraform and Docker
+
+terraform {
+  required_providers {
+    docker = {
+      source = "abh80/docker"
+      version = "1.0.1"
+    }
+  }
+}
+
+# Start a container
+resource "docker_container" "multitage" {                                                  ####Defining Container details 
+  name  = "multistage"
+  image = docker_image.multistage.image_id                                                 ####As we are defining image and colume. Please make sure that those resources exist and defined in the file 
+   mounts {
+    type = "volume"
+    source ="my-vol"
+    target="/app1"
+
+  }
+  
+}
+
+
+resource "docker_volume" "my-vol" {                                                      @@@@@@Needs to be defined
+  name = "my-vol"
+}
+
+resource "docker_image" "multistage" {                                                @@@@Needs to be defined
+  name = "multistage:latest"
+ 
+}
+
+########################################################################
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+docker_container.multitage: Creating...
+docker_container.multitage: Creation complete after 3s [id=dfd5fe021a5feea5a28302e2a9ee6aad4f1638e541cfea03fcf219e7658a99e6]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ docker ps
+CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS                PORTS                       NAMES
+dfd5fe021a5f   3e53bd387cae           "python3 api-json-da…"   6 seconds ago   Up 3 seconds                                      multistage
+0fc484d9bd09   kindest/node:v1.28.0   "/usr/local/bin/entr…"   6 weeks ago     Up 3 hours (Paused)                               kind-worker3
+14d475883ba7   kindest/node:v1.28.0   "/usr/local/bin/entr…"   6 weeks ago     Up 3 hours (Paused)                               kind-worker2
+b0ede2a1a2bb   kindest/node:v1.28.0   "/usr/local/bin/entr…"   6 weeks ago     Up 3 hours            127.0.0.1:36811->6443/tcp   kind-control-plane
+80829f8b2dec   kindest/node:v1.28.0   "/usr/local/bin/entr…"   6 weeks ago     Up 3 hours                                        kind-worker
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ docker logs multistage
+Date : 2025-01-27
+TimeZone: America/New_York
+First Light: 5:47:32 AM
+Last Light: 6:56:44 PM
+Day Length: 10:04:57
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter7$ 
+
