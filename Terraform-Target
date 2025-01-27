@@ -1,0 +1,86 @@
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+With multiple resources defined in a file, if there is requirment to work on some specific resources, we can use -target option.
+
+For example. I have created 2 modules and I am using one module in another.
+
+#######################################################MOdule 1 create used while module 2 assig those users to some group. But my requirement is to just create the user for time being
+provider "aws" {
+  region     = "ap-south-1"
+}
+
+module "module1_import" {
+  source = "../module1"
+}
+resource "aws_iam_user_group_membership" "example1" {
+  for_each=toset(module.module1_import.user_created)
+  user = each.value
+
+  groups = [
+    "mygroup"
+  ]
+  depends_on = [ module.module1_import ]
+}
+
+terraform {
+  backend "pg" {
+     
+
+  }
+}
+data "aws_iam_group" "example_user_list" {
+  group_name = "mygroup"
+  depends_on = [ aws_iam_user_group_membership.example1 ]
+}
+
+output "user_group" {
+    value = data.aws_iam_group.example_user_list.users
+  
+}
+output "module_out" {
+    value = module.module1_import.user_created
+  
+}
+
+##############################################
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform apply -auto-approve -target=module.module1_import.aws_iam_user.lb        ####Module is defined as target
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+
+##################################################################
+
+Outputs:
+
+module_out = [
+    "user-2",
+    "user-3",
+    "user-4",
+]
+
+############################################I have made change for user-2 in tag config
+So whil running the plan, It is showinf me bloe output:
+# module.module1_import.aws_iam_user.lb["user-2"] will be updated in-place
+  ~ resource "aws_iam_user" "lb" {
+        id                   = "user-2"
+        name                 = "user-2"
+      ~ tags                 = {
+          ~ "tag-key" = "user-2222" -> "user-2"
+        }
+      ~ tags_all             = {
+          ~ "tag-key" = "user-2222" -> "user-2"
+        }
+        # (5 unchanged attributes hidden)
+    }
+
+Plan: 3 to add, 1 to change, 0 to destroy.
+
+Changes to Outputs:
+  + user_group = (known after apply)
+
+───────────────────────────────────────────────────────────────────────────────────────
+
+Whil running plan command trrraform try to get the current satus and compare it with state file. If there are so many resources defined then it will take long time to refresh the state
+
+So now If I run the terraform plan -refresh=false. It won't show me the above thing:
