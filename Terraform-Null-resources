@@ -1,0 +1,90 @@
+#########################NUll Resources use case
+Null resource doesn't create or manage any actual infrastructure but is useful for running provisioners or triggers.
+It is used mostly to execute a command or a script 
+
+provider "aws" {
+  region     = "ap-south-1"
+}
+
+
+terraform {
+  backend "pg" {
+     
+
+  }
+}
+
+resource "null_resource" "my_null_resource" {
+  provisioner "local-exec" {
+    command = "echo hello there!"
+  }
+}
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+null_resource.my_null_resource: Creating...
+null_resource.my_null_resource: Provisioning with 'local-exec'...
+null_resource.my_null_resource (local-exec): Executing: ["/bin/sh" "-c" "echo hello there!"]                              #####Local Provisioner executed
+null_resource.my_null_resource (local-exec): hello there!
+null_resource.my_null_resource: Creation complete after 0s [id=3046785770518415490]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter8$ 
+
+######################################################################
+Use null_resource with provisioners like local-exec or remote-exec to execute scripts or commands.
+
+Rerunning###########################################Won't do anything
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter8$ terraform apply -auto-approve
+null_resource.my_null_resource: Refreshing state... [id=3046785770518415490]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter8$ 
+
+############Combine null_resource with the triggers argument to rerun provisioners when certain inputs change.####################
+Triggers are baisclly used to add some logic where null resource check if there is any change happened else it will execute it only once
+
+
+resource "null_resource" "my_null_resource" {
+  triggers = {
+    change="hello1"                                                            #####NUll resource will be executed only once until it this value is chanaged and trigger got activated
+  }
+  provisioner "local-exec" {
+    command = "echo hello there!"
+  }
+}
+
+
+NO change as the trigger value is same
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter8$ terraform apply -auto-approve
+null_resource.my_null_resource: Refreshing state... [id=81055127223489406]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter8$ 
+
+Now changing the trigger value:
+
+        }
+    }
+
+##############################################################
+Plan: 1 to add, 0 to change, 1 to destroy.
+null_resource.my_null_resource: Destroying... [id=81055127223489406]
+null_resource.my_null_resource: Destruction complete after 0s
+null_resource.my_null_resource: Creating...
+null_resource.my_null_resource: Provisioning with 'local-exec'...
+null_resource.my_null_resource (local-exec): Executing: ["/bin/sh" "-c" "echo hello there!"]
+null_resource.my_null_resource (local-exec): hello there!
+null_resource.my_null_resource: Creation complete after 0s [id=5492332822960682623]
+
+Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter8$ 
