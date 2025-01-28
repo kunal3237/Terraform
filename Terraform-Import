@@ -1,0 +1,41 @@
+#######################################Importing the already existing resource in the terraform state file
+
+
+
+#############################################################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform import 'module.module1_import.aws_iam_user.lb["user-2"]' user-2
+data.aws_iam_group.example_user_list: Reading...
+module.module1_import.aws_iam_user.lb["user-2"]: Importing from ID "user-2"...
+module.module1_import.aws_iam_user.lb["user-2"]: Import prepared!
+  Prepared aws_iam_user for import
+module.module1_import.aws_iam_user.lb["user-2"]: Refreshing state... [id=user-2]
+data.aws_iam_group.example_user_list: Read complete after 1s [id=AGPAUXHOJDRFX2I66LKP6]
+
+Import successful!
+
+The resources that were imported are shown above. These resources are now in
+your Terraform state and will henceforth be managed by Terraform.
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ 
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform import 'module.module1_import.aws_iam_user.lb["user-4"]' user-4
+module.module1_import.aws_iam_user.lb["user-4"]: Importing from ID "user-4"...
+module.module1_import.aws_iam_user.lb["user-4"]: Import prepared!
+  Prepared aws_iam_user for import
+module.module1_import.aws_iam_user.lb["user-4"]: Refreshing state... [id=user-4]
+data.aws_iam_group.example_user_list: Reading...
+^[[Adata.aws_iam_group.example_user_list: Read complete after 1s [id=AGPAUXHOJDRFX2I66LKP6]
+
+Import successful!
+
+The resources that were imported are shown above. These resources are now in
+your Terraform state and will henceforth be managed by Terraform.
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform state list                                              ###User Imported
+data.aws_iam_group.example_user_list
+aws_iam_user_group_membership.example1["user-2"]
+aws_iam_user_group_membership.example1["user-4"]
+module.module1_import.aws_iam_user.lb["user-2"]
+module.module1_import.aws_iam_user.lb["user-4"]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ 
