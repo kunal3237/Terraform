@@ -1,0 +1,36 @@
+###############################In terrrafomr we can use ${} for interpolation
+
+
+resource "null_resource" "file_Check" {
+  provisioner "local-exec" {
+    command="${file("shell.sh")}"                                    #####File function being used to provide the list of commands that are in the file, As file is the terraform functionm we nned to use ${} to tell that it is terrraform function
+    
+  }
+  
+}
+
+
+##################################################################################
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module1$ terraform apply -auto-approve
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # null_resource.file_Check will be created
+  + resource "null_resource" "file_Check" {
+      + id = (known after apply)
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+null_resource.file_Check: Creating...
+null_resource.file_Check: Provisioning with 'local-exec'...
+null_resource.file_Check (local-exec): Executing: ["/bin/sh" "-c" "echo \"testing interpolation\"\necho \"hi there\"\n"]
+null_resource.file_Check (local-exec): testing interpolation
+null_resource.file_Check (local-exec): hi there
+null_resource.file_Check: Creation complete after 0s [id=1537725895548630221]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module1$ 
