@@ -1,0 +1,22 @@
+########################If you want any resource not be managed by terraform once it is created, You can use the rm option of the terrraform, This remove the resource from the state file. But actual resource still exist
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform state rm 'module.module1_import.aws_iam_user.lb["user-2"]'
+Removed module.module1_import.aws_iam_user.lb["user-2"]
+Successfully removed 1 resource instance(s).
+
+#####################################################################################
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform state list
+data.aws_iam_group.example_user_list
+aws_iam_user_group_membership.example1["user-2"]
+aws_iam_user_group_membership.example1["user-4"]
+module.module1_import.aws_iam_user.lb["user-4"]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform state rm 'module.module1_import.aws_iam_user.lb["user-4"]'
+Removed module.module1_import.aws_iam_user.lb["user-4"]
+Successfully removed 1 resource instance(s).
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ terraform state list
+data.aws_iam_group.example_user_list
+aws_iam_user_group_membership.example1["user-2"]
+aws_iam_user_group_membership.example1["user-4"]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ 
+##############################################################################
+
