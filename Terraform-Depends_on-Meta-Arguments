@@ -1,0 +1,30 @@
+#################################Depends upon let us define the dependencies
+
+resource "aws_iam_user" "lb" {
+  for_each= toset(var.user_list)
+  name = each.value
+  path = "/system/"
+
+  tags = {
+    tag-key = each.value
+  }
+}
+
+resource "aws_iam_user_group_membership" "example1" {
+  for_each = toset([for i in aws_iam_user.lb : i.name])
+  user = each.value
+
+  groups = [
+    "mygroup"
+  ]
+  depends_on = [ aws_iam_user.lb]                                        ###Defineing the depenency
+}
+
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module1$ terraform state list
+aws_iam_user.lb["user-2"]
+aws_iam_user.lb["user-3"]
+aws_iam_user.lb["user-4"]
+aws_iam_user_group_membership.example1["user-2"]
+aws_iam_user_group_membership.example1["user-3"]
+aws_iam_user_group_membership.example1["user-4"]
+kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module1$ 
