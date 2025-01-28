@@ -71,3 +71,6 @@ Terraform will perform the following actions:
 
 Destroy complete! Resources: 1 destroyed.
 kunal@kunal-Lenovo-U410:~/Terraform-Study/chapter6/module2$ 
+
+
+##############################Important, While calling modules and showing output from modules, Be careful and check the state carefully
